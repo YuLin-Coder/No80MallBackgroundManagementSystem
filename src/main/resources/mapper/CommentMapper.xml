@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yxb.cms.dao.CommentMapper" >
+
+    <select id="selectCommentByCondition" parameterType="com.yxb.cms.domain.vo.Comment" resultType="com.yxb.cms.domain.vo.Comment">
+         SELECT
+           c.id,u.user_name user_code,c.order_no,c.star,c.content,c.create_time
+         FROM
+           t_comment c
+         inner join cc_user u on u.relation_id=c.user_code
+         inner join t_order o on o.order_no=c.order_no
+         where 1=1
+         <if test="user_code!=null and user_code!=''">
+             and c.user_code=#{user_code}
+         </if>
+        <if test="order_no!=null and order_no!=''">
+            and c.order_no=#{order_no}
+        </if>
+        <if test="dianpu_code!=null and dianpu_code!=''">
+            and  o.dianpu_code=#{dianpu_code}
+        </if>
+         order by c.create_time desc
+         LIMIT #{start},#{limit}
+    </select>
+    
+
+    <select id="selectCommentCountByCondition" parameterType="com.yxb.cms.domain.vo.Comment"  resultType="java.lang.Long">
+        SELECT
+          count(1)
+        FROM
+          t_comment c
+        inner join t_order o on o.order_no=c.order_no
+        where 1=1
+        <if test="user_code!=null and user_code!=''">
+            and c.user_code=#{user_code}
+        </if>
+        <if test="order_no!=null and order_no!=''">
+            and c.order_no=#{order_no}
+        </if>
+        <if test="dianpu_code!=null and dianpu_code!=''">
+            and  o.dianpu_code=#{dianpu_code}
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="com.yxb.cms.domain.vo.Comment">
+        INSERT INTO t_comment (user_code,order_no,star,content,create_time)
+        VALUES
+        (
+            #{user_code},
+            #{order_no},
+            #{star},
+            #{content},
+            now()
+        )
+    </insert>
+
+    <delete id="deleteCommentById"  parameterType="java.lang.Integer" >
+        DELETE  FROM t_comment where id=#{id}
+    </delete>
+
+    <select id="findByMap" parameterType="java.util.Map" resultType="com.yxb.cms.domain.vo.Comment">
+        select * from t_comment where user_code=#{user_code} and order_no=#{order_no}
+    </select>
+  
+</mapper>

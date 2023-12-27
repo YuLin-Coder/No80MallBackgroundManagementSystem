@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yxb.cms.dao.HourseMapper" >
+
+    <select id="selectHourseByCondition" parameterType="com.yxb.cms.domain.vo.Hourse" resultType="com.yxb.cms.domain.vo.Hourse">
+         SELECT
+           h.id,h.name,cc.name type_id,h.photo,h.price,h.the_size,h.info,h.welfare,h.type_name,h.user_code
+         FROM
+           t_hourse h
+           inner join t_common_code cc on cc.id=h.type_id
+         where 1=1
+         <if test="name!=null and name!=''">
+             and h.name like '%${name}%'
+         </if>
+		<if test="type_id !=null and type_id !=''">
+			and h.type_id=#{type_id}
+		</if>
+		<if test="user_code !=null and user_code !=''">
+			and h.user_code=#{user_code}
+		</if>
+         LIMIT #{start},#{limit}
+    </select>
+    
+
+    <select id="selectHourseCountByCondition" parameterType="com.yxb.cms.domain.vo.Hourse"  resultType="java.lang.Long">
+        SELECT
+          count(1)
+        FROM
+          t_hourse
+        where 1=1 and user_code=#{user_code}
+        <if test="name!=null and name!=''">
+            and name like '%${name}%'
+        </if>
+		<if test="type_id !=null and type_id !=''">
+			and type_id=#{type_id}
+		</if>
+		<if test="user_code !=null and user_code !=''">
+			and user_code=#{user_code}
+		</if>
+    </select>
+
+	<select id="selectRoomServerByCondition" parameterType="com.yxb.cms.domain.vo.Hourse" resultType="com.yxb.cms.domain.vo.Hourse">
+		SELECT
+		   h.id,h.name,h.photo,h.price,h.info
+		FROM
+		t_hourse h
+		where 1=1
+		<if test="name!=null and name!=''">
+			and h.name like '%${name}%'
+		</if>
+		LIMIT #{start},#{limit}
+	</select>
+
+
+	<select id="selectRoomServerCountByCondition" parameterType="com.yxb.cms.domain.vo.Hourse"  resultType="java.lang.Long">
+		SELECT
+		   count(1)
+		FROM
+		   t_hourse
+		where 1=1 
+		<if test="name!=null and name!=''">
+			and name like '%${name}%'
+		</if>
+	</select>
+
+    <insert id="insert" parameterType="com.yxb.cms.domain.vo.Hourse">
+        INSERT INTO t_hourse (name,type_id,photo,price,the_size,info,welfare,type_name,user_code,create_time)
+        VALUES
+        (
+            #{name},
+            #{type_id},
+            #{photo},
+            #{price},
+            #{the_size},
+            #{info},
+            #{welfare},
+            #{type_name},
+            #{user_code},
+            #{create_time}
+        )
+    </insert>
+
+    <select id="selectHourseById" parameterType="java.lang.Integer" resultType="com.yxb.cms.domain.vo.Hourse">
+        SELECT
+            id,name,type_id,photo,price,the_size,info,welfare,type_name,user_code
+        FROM
+            t_hourse
+        where id=#{id}
+    </select>
+
+    <update id="update" parameterType="com.yxb.cms.domain.vo.Hourse">
+        UPDATE t_hourse
+        SET name= #{name},
+            <if test="type_id !=null and type_id !=''">
+                type_id=#{type_id},
+            </if>
+            photo=#{photo},
+            price=#{price},
+            <if test="the_size !=null and the_size !=''">
+                the_size=#{the_size},
+            </if>
+            <if test="welfare !=null and welfare !=''">
+                welfare=#{welfare},
+            </if>
+            info=#{info}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteHourseById"  parameterType="java.lang.Integer" >
+        DELETE  FROM t_hourse where id=#{id}
+    </delete>
+
+	<select id="findByAll" parameterType="com.yxb.cms.domain.vo.Hourse" resultType="com.yxb.cms.domain.vo.Hourse">
+		SELECT
+		   h.id,h.name,cc.name type_id,h.photo,h.price,h.the_size,h.info,h.welfare,h.type_name,h.user_code
+		FROM
+		   t_hourse h
+		inner join t_common_code cc on cc.id=h.type_id
+		where 1=1  and h.id in(${id})
+
+	</select>
+
+	<select id="findByAllOrderNo" parameterType="com.yxb.cms.domain.vo.Hourse" resultType="com.yxb.cms.domain.vo.Hourse">
+		SELECT
+		   h.id,h.name,cc.name type_id,h.photo,h.price,h.the_size,h.info,h.welfare,h.type_name,o.num,o.total_amount,h.user_code
+		FROM
+		   t_hourse h
+		inner join t_common_code cc on cc.id=h.type_id
+		inner join t_order_detail o on o.other_id=h.id and o.order_no=${id}
+	</select>
+
+	<update id="in_stack"  parameterType="com.yxb.cms.domain.vo.Hourse">
+		update t_hourse set the_size =the_size+#{the_size} where id=#{id}
+	</update>
+</mapper>

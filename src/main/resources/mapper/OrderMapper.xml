@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yxb.cms.dao.OrderMapper" >
+
+    <select id="selectOrderByCondition" parameterType="com.yxb.cms.domain.vo.Order" resultType="com.yxb.cms.domain.vo.Order">
+         SELECT
+           id,order_no,other_id,create_time,user_code,status,num,total_amount,type_name
+         FROM
+           t_order
+         where 1=1
+        <if test="order_no!=null and order_no!=''">
+            and order_no =#{order_no}
+        </if>
+        <if test="user_code!=null and user_code!=''">
+            and user_code =#{user_code}
+        </if>
+        <if test="status!=null and status!=''">
+            and status =#{status}
+        </if>
+        <if test="type_name!=null and type_name!=''">
+            and type_name =#{type_name}
+        </if>
+        <if test="dianpu_code!=null and dianpu_code!=''">
+			and dianpu_code=#{dianpu_code}
+		</if>
+         LIMIT #{start},#{limit}
+    </select>
+
+    <select id="selectOrderDetailByCondition" parameterType="com.yxb.cms.domain.vo.Order" resultType="com.yxb.cms.domain.vo.Order">
+          SELECT
+            od.id,od.order_no,od.other_id,o.type_name,od.num,od.total_amount,h.price,h.name,h.photo,o.status
+         FROM
+           t_order o
+           inner join  t_order_detail od on od.order_no=o.order_no
+           inner join t_hourse h on h.id=od.other_id
+         where 1=1
+         <if test="order_no!=null and order_no!=''">
+            and o.order_no =#{order_no}
+         </if>
+
+         LIMIT #{start},#{limit}
+    </select>
+
+    <select id="selectOrderDetailCountByCondition" parameterType="com.yxb.cms.domain.vo.Order" resultType="java.lang.Long">
+        SELECT
+         count(1)
+        FROM
+        t_order o
+        inner join  t_order_detail od on od.order_no=o.order_no
+        inner join t_hourse h on h.id=od.other_id
+        where 1=1
+        <if test="order_no!=null and order_no!=''">
+            and o.order_no =#{order_no}
+        </if>
+    </select>
+
+
+    <select id="selectSaleByCondition" parameterType="com.yxb.cms.domain.vo.Order" resultType="com.yxb.cms.domain.vo.Order">
+        select
+          sum(num) num ,
+          ROUND(sum(total_amount),2)  total_amount ,
+        <if test="type_name=='2'.toString() ">
+            DATE_FORMAT(create_time,'%Y-%m') create_time
+        </if>
+        <if test="type_name=='1'.toString() ">
+            DATE_FORMAT(create_time,'%Y-%m-%d') create_time
+        </if>
+        from t_order
+        WHERE status=3 and dianpu_code=#{dianpu_code}
+        group By DATE_FORMAT(create_time,'%Y-%m-%d')
+        <if test="type_name=='2'">
+            group By DATE_FORMAT(create_time,'%Y-%m')
+        </if>
+        <if test="type_name=='1'">
+            group By DATE_FORMAT(create_time,'%Y-%m-%d')
+        </if>
+        LIMIT #{start},#{limit}
+    </select>
+
+    <select id="selectOrderCountByCondition" parameterType="com.yxb.cms.domain.vo.Order"  resultType="java.lang.Long">
+        SELECT
+          count(1)
+        FROM
+          t_order
+        where 1=1
+        <if test="order_no!=null and order_no!=''">
+            and order_no =#{order_no}
+        </if>
+        <if test="user_code!=null and user_code!=''">
+            and user_code =#{user_code}
+        </if>
+        <if test="status!=null and status!=''">
+            and status =#{status}
+        </if>
+        <if test="type_name!=null and type_name!=''">
+            and type_name =#{type_name}
+        </if>
+		<if test="dianpu_code!=null and dianpu_code!=''">
+			and dianpu_code=#{dianpu_code}
+		</if>
+    </select>
+
+
+    <select id="selectSaleCountByCondition" parameterType="com.yxb.cms.domain.vo.Order"  resultType="java.lang.Long">
+        select
+           count(1)
+        from t_order
+        WHERE status=3
+        <if test="type_name=='2'.toString()">
+            group By DATE_FORMAT(create_time,'%Y-%m')
+        </if>
+        <if test="type_name=='1'.toString()">
+            group By DATE_FORMAT(create_time,'%Y-%m-%d')
+        </if>
+    </select>
+
+    <insert id="insert" parameterType="com.yxb.cms.domain.vo.Order">
+        INSERT INTO t_order (order_no,other_id,create_time,user_code,status,type_name,num,total_amount,dianpu_code)
+        VALUES
+        (
+            #{order_no},
+            #{other_id},
+            now(),
+            #{user_code},
+            #{status},
+            #{type_name},
+            #{num},
+            #{total_amount},
+            #{dianpu_code}
+        )
+    </insert>
+
+    <insert id="saveOrderDetail" parameterType="java.util.List">
+        INSERT INTO t_order_detail(order_no,other_id,num,total_amount)
+        VALUES
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+                #{item.order_no},
+                #{item.other_id},
+                #{item.num},
+                #{item.total_amount}
+            )
+        </foreach>
+    </insert>
+
+
+    <select id="selectOrderById" parameterType="java.lang.Integer" resultType="com.yxb.cms.domain.vo.Order">
+        SELECT
+            id,order_no,other_id,create_time,user_code,status,type_name,num,total_amount,type_name
+        FROM
+            t_order
+        where id=#{id}
+    </select>
+
+    <update id="update" parameterType="com.yxb.cms.domain.vo.Order">
+        UPDATE t_order
+        SET other_id= #{other_id},
+            total_amount=#{total_amount}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteOrderById"  parameterType="java.lang.Integer" >
+        DELETE  FROM t_order where id=#{id}
+    </delete>
+
+    <update id="updateOrderStatus" parameterType="java.util.Map">
+        update t_order set status=#{status} where  1=1
+        <if test="id!=null and id!=''">
+            and  id=#{id}
+        </if>
+        <if test="order_no!=null and order_no!=''">
+            and  order_no=#{order_no}
+        </if>
+    </update>
+    <update id="updateTotalAmount" parameterType="com.yxb.cms.domain.vo.Order">
+        update t_order set total_amount=#{total_amount},other_id=#{id} where order_no=#{order_no}
+    </update>
+
+    <update id="updateOrderDetailAmount" parameterType="com.yxb.cms.domain.vo.Order">
+        update t_order_detail set total_amount=#{total_amount},other_id=#{id}
+        where order_no=#{order_no} and other_id=#{other_id}
+    </update>
+
+    <update id="updateNum" parameterType="java.util.Map">
+        update t_hourse set the_size=the_size-#{num}
+        where id=#{id}
+    </update>
+
+    <update id="updateNumPlus" parameterType="java.util.Map">
+        update t_hourse set the_size=the_size+#{num}
+        where id=#{id}
+    </update>
+
+
+
+    <select id="findByOrderNo" parameterType="java.lang.String" resultType="com.yxb.cms.domain.vo.Order">
+         select * from t_order where order_no=#{order_no}
+    </select>
+
+    <select id="getOrderDetail" parameterType="com.yxb.cms.domain.vo.Order" resultType="com.yxb.cms.domain.vo.Order">
+        select * from t_order_detail where order_no=#{order_no} and other_id=#{other_id}
+    </select>
+</mapper>

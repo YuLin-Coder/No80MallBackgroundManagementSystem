@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>  
+<!--日志级别以及优先级排序: OFF > FATAL > ERROR > WARN > INFO > DEBUG > TRACE > ALL -->
+<!--Configuration后面的status，这个用于设置log4j2自身内部的信息输出，可以不设置，当设置成trace时，你会看到log4j2内部各种详细输出-->
+<!--monitorInterval：Log4j能够自动检测修改配置 文件和重新配置本身，设置间隔秒数-->
+<Configuration status="info" monitorInterval="60" DLog4jContextSelector="org.apache.logging.log4j.core.async.A‌​syncLoggerContextSel‌​ector">
+	<!--定义了两个常量方便后面复用 -->
+	<properties>  
+		<!--生成的日志文件目录地址  -->
+        <property name="LOG_HOME">/data/logs/tomcat/cms</property>
+        <!--日志文件名称 -->
+        <property name="FILE_NAME">contentManagerSystem</property>
+    </properties> 
+	<!--先定义所有的appender-->
+    <Appenders>  
+    	<!-- 定义控制台输出 -->  
+        <Console name="Console" target="SYSTEM_OUT">  
+        	<!--输出日志的格式-->
+            <PatternLayout charset="UTF-8"  pattern="[%d][%t][%p][%c:%L] %m%n" />
+        </Console>
+        <!--满足一定条件后，就重命名原日志文件用于备份，并从新生成一个新的日志文件 -->
+        <!--fileName:指定当前日志文件的位置和文件名称   filePattern:指定当发生Rolling时，文件的转移和重命名规则-->
+        <RollingFile name="logFile"
+            fileName="${LOG_HOME}/${FILE_NAME}.log"  
+            filePattern="${LOG_HOME}/$${date:yyyy-MM}/${FILE_NAME}-%d{yyyy-MM-dd}-%i.log">  
+            <PatternLayout charset="UTF-8" pattern="[%d][%t][%p][%c:%L] %m%n" />
+            <Policies>  
+            	<!--TimeBasedTriggeringPolicy这个配置需要和filePattern结合使用，
+            	注意filePattern中配置的文件重命名规则是${FILE_NAME}-%d{yyyy-MM-dd HH-mm}-%i，
+            	最小的时间粒度是mm，即分钟，TimeBasedTriggeringPolicy指定的size是1，结合起来就是每1分钟生成一个新文件。
+            	如果改成%d{yyyy-MM-dd HH}，最小粒度为小时，则每一个小时生成一个文件。  -->
+                <TimeBasedTriggeringPolicy interval="1" />  
+                <!--SizeBasedTriggeringPolicy  指定当文件体积大于size指定的值时，触发Rolling-->
+                <SizeBasedTriggeringPolicy size="2048 MB" />  
+            </Policies>  
+            <DefaultRolloverStrategy max="20" />  
+        </RollingFile>
+        <File name="error" fileName="${LOG_HOME}/contentManagerSystemExceptions.log">
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout charset="UTF-8" pattern="[%d][%t][%p][%c:%L] %m%n"/>
+        </File>
+         
+    </Appenders>  
+    
+    <Loggers>  
+        <Root level="info">  
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="logFile" />
+            <AppenderRef ref="error" />
+        </Root>  
+    </Loggers>
+      
+</Configuration> 

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yxb.cms.dao.StoreMapper" >
+
+
+    <insert id="insert" parameterType="com.yxb.cms.domain.vo.Store">
+        INSERT INTO t_store (qualification,user_code,store_name,log_photo,address,phone)
+        VALUES
+        (   #{qualification},
+            #{user_code},
+            #{store_name},
+            #{log_photo},
+            #{address},
+            #{phone}
+        )
+    </insert>
+
+    <select id="selectStoreById" parameterType="java.lang.String" resultType="com.yxb.cms.domain.vo.Store">
+          select * from t_store where user_code=#{userCode}
+    </select>
+
+    <select id="findByStore" parameterType="com.yxb.cms.domain.vo.Store" resultType="com.yxb.cms.domain.vo.Store">
+         select user_name name,'' store_name from cc_user where   user_name=#{name}
+           union
+         select '' name, store_name from t_store where store_name=#{store_name}
+    </select>
+</mapper>

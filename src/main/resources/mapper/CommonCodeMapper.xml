@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.yxb.cms.dao.CommonCodeMapper" >
+
+    <select id="selectCommonCodeByCondition" parameterType="com.yxb.cms.domain.vo.CommonCode" resultType="com.yxb.cms.domain.vo.CommonCode">
+         SELECT
+           id,code,name
+         FROM
+           t_common_code
+         where 1=1
+         LIMIT #{start},#{limit}
+    </select>
+    
+
+    <select id="selectCommonCodeCountByCondition" parameterType="com.yxb.cms.domain.vo.CommonCode"  resultType="java.lang.Long">
+        SELECT
+          count(1)
+        FROM
+          t_common_code
+        where 1=1
+    </select>
+
+    <insert id="insert" parameterType="com.yxb.cms.domain.vo.CommonCode">
+        INSERT INTO t_common_code (code,name)
+        VALUES
+        (
+            #{code},
+            #{name}
+        )
+    </insert>
+
+    <select id="selectCommonCodeById" parameterType="java.lang.Integer" resultType="com.yxb.cms.domain.vo.CommonCode">
+        SELECT
+            id,code,name
+        FROM
+            t_common_code
+        where id=#{id}
+    </select>
+
+    <update id="update" parameterType="com.yxb.cms.domain.vo.CommonCode">
+        UPDATE t_common_code
+        SET code= #{code},
+            name=#{name}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteCommonCodeById"  parameterType="java.lang.Integer" >
+        DELETE  FROM t_common_code where id=#{id}
+    </delete>
+
+    <select id="findByMap" parameterType="java.util.Map" resultType="com.yxb.cms.domain.vo.CommonCode">
+        select  * from t_common_code where 1=1 and code=#{code}
+    </select>
+</mapper>
